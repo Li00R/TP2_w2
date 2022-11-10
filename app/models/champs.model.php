@@ -9,18 +9,23 @@ class ChampsModel {
     }
 
 
-    public function getAll() {
-        // 1. abro conexión a la DB
-        // ya esta abierta por el constructor de la clase
-
-        // 2. ejecuto la sentencia (2 subpasos)
-        $query = $this->db->prepare("SELECT * FROM champs_table");
-        $query->execute();
-
-        // 3. obtengo los resultados
-        $champs = $query->fetchAll(PDO::FETCH_OBJ); // devuelve un arreglo de objetos
-        
-        return $champs;
+    public function getAll($orderBy = null, $order = "ASC") {
+        try {
+            if (isset($orderBy)) {
+                $query = $this->db->prepare("SELECT * FROM champs_table ORDER BY $orderBy $order");
+                $query->execute();
+            } else {
+                $query = $this->db->prepare("SELECT * FROM champs_table");
+                $query->execute();
+            }
+            $champs = $query->fetchAll(PDO::FETCH_OBJ);
+            return $champs;
+        }
+        catch (PDOException $error) {
+            //error_log('PDO Exception: '.$error->getMessage());
+            return;
+        }
+        //listar talvez con limit
     }
 
     public function get($id) {

@@ -21,8 +21,21 @@ class ChampsApiController {
     }
 
     public function getChamps($params = null) {
-        $champs = $this->model->getAll();
-        $this->view->response($champs);
+        if(isset($_GET['orderBy'])){
+            if(isset($_GET['orderBy']) && isset($_GET['order'])){
+                $champs = $this->model->getAll($_GET['orderBy'],$_GET['order']);
+            } else {
+                $champs = $this->model->getAll($_GET['orderBy']);
+            }
+        }
+        else{
+            $champs = $this->model->getAll();
+        }
+        if (isset($champs)) {
+            $this->view->response($champs);
+        } else {
+            $this->view->response("Ha ocurrido un error, revisa los datos ingresados", 400);
+        }
     }
 
     public function getChamp($params = null) {
