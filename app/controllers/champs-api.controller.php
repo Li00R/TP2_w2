@@ -37,11 +37,12 @@ class ChampsApiController {
         } else {
             $config->filter = "";
         }
-        if (isset($_GET['page'])) {
-            $config->page = $_GET['page'];
+        if (isset($_GET['page']) && $_GET['page'] > 1) {
+            $config->page = $_GET['page'] * 10 - 10; //para acomodar el paginado cada 10
         } else {
             $config->page = "0";
         }
+        var_dump($config->page);
         $champs = $this->model->getItems($config);
         if (isset($champs)) {
             $this->view->response($champs);
