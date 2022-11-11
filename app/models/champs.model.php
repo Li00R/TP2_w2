@@ -11,7 +11,7 @@ class ChampsModel {
 
     public function getItems($config) { // preguntar que hacer si piden filtro de nombre de rol, y tambien como hacer el auth, si solo se tiene que mostrar la info de la db del tp anterior y q onda el readme
         try {  //ID_champ no porque seria el get el que ya esta
-            $query = $this->db->prepare("SELECT * FROM champs_table WHERE ( '' = ? OR Champ_name = ? OR ID_rol = ? OR Line_name = ?) ORDER BY $config->orderBy $config->order LIMIT $config->page,10");
+            $query = $this->db->prepare("SELECT * FROM champs_table LEFT JOIN roles_table ON champs_table.ID_rol = roles_table.ID_rol WHERE ('' = ? OR Champ_name = ? OR Line_name = ? OR Rol_name = ?) ORDER BY $config->orderBy $config->order LIMIT $config->page,10");
             $query->execute([$config->filter, $config->filter, $config->filter, $config->filter]);
             $champs = $query->fetchAll(PDO::FETCH_OBJ);
             return $champs;
@@ -25,7 +25,7 @@ class ChampsModel {
     }
 
     public function get($id) {
-        $query = $this->db->prepare("SELECT * FROM champs_table WHERE ID_champ = ?");
+        $query = $this->db->prepare("SELECT * FROM champs_table LEFT JOIN roles_table ON champs_table.ID_rol = roles_table.ID_rol WHERE ID_champ = ?");
         $query->execute([$id]);
         $champ = $query->fetch(PDO::FETCH_OBJ);
         
