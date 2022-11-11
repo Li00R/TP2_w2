@@ -21,16 +21,28 @@ class ChampsApiController {
     }
 
     public function getChamps($params = null) {
-        if(isset($_GET['orderBy'])){
-            if(isset($_GET['orderBy']) && isset($_GET['order'])){
-                $champs = $this->model->getAll($_GET['orderBy'],$_GET['order']);
-            } else {
-                $champs = $this->model->getAll($_GET['orderBy']);
-            }
+        $config = new stdClass();
+        if (isset($_GET['orderBy'])) {
+            $config->orderBy = $_GET['orderBy'];
+        } else {
+            $config->orderBy = "ID_champ";
         }
-        else{
-            $champs = $this->model->getAll();
+        if (isset($_GET['order'])) {
+            $config->order = $_GET['order'];
+        } else {
+            $config->order = "ASC";
         }
+        /* if (isset($_GET['filter'])) {
+            $config->filter = $_GET['filter'];
+        } else {
+            $config->filter = "";
+        } */
+        if (isset($_GET['page'])) {
+            $config->page = $_GET['page'];
+        } else {
+            $config->page = "0";
+        }
+        $champs = $this->model->getAll($config);
         if (isset($champs)) {
             $this->view->response($champs);
         } else {

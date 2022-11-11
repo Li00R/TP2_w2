@@ -9,15 +9,10 @@ class ChampsModel {
     }
 
 
-    public function getAll($orderBy = null, $order = "ASC") {
+    public function getAll($config) {
         try {
-            if (isset($orderBy)) {
-                $query = $this->db->prepare("SELECT * FROM champs_table ORDER BY $orderBy $order");
-                $query->execute();
-            } else {
-                $query = $this->db->prepare("SELECT * FROM champs_table");
-                $query->execute();
-            }
+            $query = $this->db->prepare("SELECT * FROM champs_table ORDER BY $config->orderBy $config->order LIMIT $config->page,10");
+            $query->execute();
             $champs = $query->fetchAll(PDO::FETCH_OBJ);
             return $champs;
         }
