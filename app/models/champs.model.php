@@ -9,15 +9,16 @@ class ChampsModel {
     }
 
 
-    public function getAll($config) {
-        try {
-            $query = $this->db->prepare("SELECT * FROM champs_table ORDER BY $config->orderBy $config->order LIMIT $config->page,10");
-            $query->execute();
+    public function getItems($config) { // preguntar que hacer si piden filtro de nombre de rol, y tambien como hacer el auth, si solo se tiene que mostrar la info de la db del tp anterior y q onda el readme
+        try {  //ID_champ no porque seria el get el que ya esta
+            $query = $this->db->prepare("SELECT * FROM champs_table WHERE ( '' = ? OR Champ_name = ? OR ID_rol = ? OR Line_name = ?) ORDER BY $config->orderBy $config->order LIMIT $config->page,10");
+            $query->execute([$config->filter, $config->filter, $config->filter, $config->filter]);
             $champs = $query->fetchAll(PDO::FETCH_OBJ);
             return $champs;
         }
         catch (PDOException $error) {
             //error_log('PDO Exception: '.$error->getMessage());
+            echo $error;
             return;
         }
         //listar talvez con limit

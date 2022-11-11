@@ -32,17 +32,17 @@ class ChampsApiController {
         } else {
             $config->order = "ASC";
         }
-        /* if (isset($_GET['filter'])) {
+        if (isset($_GET['filter'])) {
             $config->filter = $_GET['filter'];
         } else {
             $config->filter = "";
-        } */
+        }
         if (isset($_GET['page'])) {
             $config->page = $_GET['page'];
         } else {
             $config->page = "0";
         }
-        $champs = $this->model->getAll($config);
+        $champs = $this->model->getItems($config);
         if (isset($champs)) {
             $this->view->response($champs);
         } else {
