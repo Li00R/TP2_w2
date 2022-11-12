@@ -37,12 +37,15 @@ class ChampsApiController {
         } else {
             $config->filter = "";
         }
-        if (isset($_GET['page']) && $_GET['page'] > 1) {
+        $aux = (int) $_GET['page']; // para comprobar que lo que se ingrega sea unicamente integer
+        $aux = (string) $aux;
+        if (isset($_GET['page']) && $_GET['page'] > 0 && $aux == $_GET['page'])  {
             $config->page = $_GET['page'] * 10 - 10; //para acomodar el paginado cada 10
+        } else if (isset($_GET['page'])) {
+            $config->page = "1.1"; //por si pone algo que no sea int, esto es lo mismo, el modelo va a tener error y se devolvera 400
         } else {
             $config->page = "0";
         }
-        var_dump($config->page);
         $champs = $this->model->getItems($config);
         if (isset($champs)) {
             $this->view->response($champs);
@@ -52,11 +55,8 @@ class ChampsApiController {
     }
 
     public function getChamp($params = null) {
-        // obtengo el id del arreglo de params
         $id = $params[':ID'];
         $champ = $this->model->get($id);
-
-        // si no existe devuelvo 404
         if ($champ)
             $this->view->response($champ);
         else 
