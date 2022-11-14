@@ -1,16 +1,18 @@
 <?php
 require_once './app/models/champs.Model.php';
 require_once './app/views/api.view.php';
+require_once 'app/helpers/auth.api.helper.php';
 
 class ChampsApiController {
     private $model;
     private $view;
-
+    private $authHelper;
     private $data;
 
     public function __construct() {
         $this->model = new ChampsModel();
         $this->view = new ApiView();
+        $this->authHelper = new AuthApiHelper();
         
         // lee el body del request
         $this->data = file_get_contents("php://input");
@@ -20,7 +22,7 @@ class ChampsApiController {
         return json_decode($this->data);
     }
 
-    public function getChamps($params = null) {
+    public function getChamps($params = null) { //se podria agregar variable de limit
         $config = new stdClass();
         if (isset($_GET['orderBy'])) {
             $config->orderBy = $_GET['orderBy'];
@@ -37,12 +39,14 @@ class ChampsApiController {
         } else {
             $config->filter = "";
         }
-        $aux = (int) $_GET['page']; // para comprobar que lo que se ingrega sea unicamente integer
-        $aux = (string) $aux;
-        if (isset($_GET['page']) && $_GET['page'] > 0 && $aux == $_GET['page'])  {
-            $config->page = $_GET['page'] * 10 - 10; //para acomodar el paginado cada 10
-        } else if (isset($_GET['page'])) {
-            $config->page = "1.1"; //por si pone algo que no sea int, esto es lo mismo, el modelo va a tener error y se devolvera 400
+        if (isset($_GET['page'])) {
+            $aux = (int) $_GET['page']; // para comprobar que lo que se ingrega sea unicamente integer
+            $aux = (string) $aux;
+            if ($_GET['page'] > 0 && $aux == $_GET['page'])  {
+                $config->page = $_GET['page'] * 10 - 10; //para acomodar el paginado con limite de 10
+            } else {
+                $config->page = "1.1"; //por si pone algo que no sea int, esto es lo mismo, el modelo va a tener error y se devolvera 400
+            }
         } else {
             $config->page = "0";
         }
@@ -60,12 +64,15 @@ class ChampsApiController {
         if ($champ)
             $this->view->response($champ);
         else 
-            $this->view->response("El champ con el id=$id no existe", 404);
+            $this->view->response("El champ con el ID=$id no existe", 404);
     }
 
-    public function addChamp($params = null) {
+    public function addChamp() {
+        if(!$this->authHelper->isLogged()){
+            $this->view->response("No estas logeado", 401);
+            return;
+        }
         $champ = $this->getData();
-
         if (empty($champ->Champ_name) || empty($champ->ID_rol) || empty($champ->Line_name)) {
             $this->view->response("Complete los datos", 400);
         } else {
@@ -76,6 +83,10 @@ class ChampsApiController {
     }
 
     public function editChamp($params = null) {
+        if(!$this->authHelper->isLogged()){
+            $this->view->response("No estas logeado", 401);
+            return;
+        }
         $champ = $this->getData();
         $id= $params[':ID'];
         if (empty($champ->Champ_name) || empty($champ->ID_rol) || empty($champ->Line_name)) {
@@ -96,6 +107,10 @@ class ChampsApiController {
     }
 
     public function deleteChamp($params = null) {
+        if(!$this->authHelper->isLogged()){
+            $this->view->response("No estas logeado", 401);
+            return;
+        }
         $id = $params[':ID'];
         if (empty($id)) {
             $this->view->response("No se ha seleccionado que borrar", 400);

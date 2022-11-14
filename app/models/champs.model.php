@@ -10,8 +10,8 @@ class ChampsModel {
     }
 
 
-    public function getItems($config) { // el auth, si solo se tiene que mostrar la info de la db del tp anterior y q onda el readme
-        try {  //ID_champ no porque seria el get el que ya esta, page en 1.5¿¿
+    public function getItems($config) {
+        try {  //ID_champ no porque seria el get el que ya esta
             $query = $this->db->prepare("SELECT * FROM champs_table 
             LEFT JOIN roles_table ON champs_table.ID_rol = roles_table.ID_rol 
             WHERE ('' = ? OR Champ_name = ? OR Line_name = ? OR Rol_name = ?) 
@@ -51,16 +51,15 @@ class ChampsModel {
         WHERE ID_champ = ?');
         try {
             $query->execute([$Champ_name, $ID_rol, $Line_name, $id]);
-            return(true);
+            return(true); //confirma que se ejecuto el query
         }
         catch (PDOException $error){
             //error_log('PDO Exception: '.$error->getMessage());
             return;
         }
-        //var_dump($query->errorInfo()); // y eliminar la redireccion
     }
 
-    function delete($id) {
+    function delete($id) { // try catch por las dudas¿
         $query = $this->db->prepare('DELETE FROM champs_table 
         WHERE ID_champ = ?');
         $query->execute([$id]);

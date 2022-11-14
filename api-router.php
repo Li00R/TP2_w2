@@ -1,6 +1,7 @@
 <?php
 require_once './libs/Router.php';
 require_once './app/controllers/champs-api.controller.php';
+require_once './app/controllers/auth.api.controller.php';
 
 error_reporting(E_ALL);
 ini_set('display_errors', '1');
@@ -14,6 +15,8 @@ $router->addRoute('champs/:ID', 'GET', 'ChampsApiController', 'getChamp');
 $router->addRoute('champs', 'POST', 'ChampsApiController', 'addChamp');
 $router->addRoute('champs/:ID', 'PUT', 'ChampsApiController', 'editChamp');
 $router->addRoute('champs/:ID', 'DELETE', 'ChampsApiController', 'deleteChamp');
+
+$router->addRoute("auth/token", 'GET', 'AuthApiController', 'getToken');
 
 // ejecuta la ruta (sea cual sea)
 $router->route($_GET["resource"], $_SERVER['REQUEST_METHOD']);
