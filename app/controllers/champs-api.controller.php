@@ -24,10 +24,10 @@ class ChampsApiController {
 
     public function getChamps($params = null) { //se podria agregar variable de limit
         $config = new stdClass();
-        if (isset($_GET['orderBy'])) {
-            $config->orderBy = $_GET['orderBy'];
+        if (isset($_GET['sort'])) {
+            $config->sort = $_GET['sortBy'];
         } else {
-            $config->orderBy = "ID_champ";
+            $config->sort = "ID_champ";
         }
         if (isset($_GET['order'])) {
             $config->order = $_GET['order'];
@@ -72,6 +72,9 @@ class ChampsApiController {
             $this->view->response("No estas logeado", 401);
             return;
         }
+        // Se usa id y no nombre o similar porque desde el trabajo anterior se estaba usando
+        // de esta forma, ya que no se tenia otro valor unico, por lo tanto es indistinto a la hora 
+        //de entender el funcionamiento y la funcionalidad del mismo
         $champ = $this->getData();
         if (empty($champ->Champ_name) || empty($champ->ID_rol) || empty($champ->Line_name)) {
             $this->view->response("Complete los datos", 400);
@@ -118,7 +121,9 @@ class ChampsApiController {
             $champ = $this->model->get($id);
             if ($champ) {
                 $this->model->delete($id);
-                $this->view->response($champ);
+                if (!$this->model->get($id)) {
+                    $this->view->response("El campeon se borro correctamente");
+                }
             } else {
                 $this->view->response("La tarea con el id=$id no existe", 404);
             }

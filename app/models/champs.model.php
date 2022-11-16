@@ -15,7 +15,7 @@ class ChampsModel {
             $query = $this->db->prepare("SELECT * FROM champs_table 
             LEFT JOIN roles_table ON champs_table.ID_rol = roles_table.ID_rol 
             WHERE ('' = ? OR Champ_name = ? OR Line_name = ? OR Rol_name = ?) 
-            ORDER BY $config->orderBy $config->order 
+            ORDER BY $config->sort $config->order 
             LIMIT $config->page,10");
             $query->execute([$config->filter, $config->filter, $config->filter, $config->filter]);
             $champs = $query->fetchAll(PDO::FETCH_OBJ);
