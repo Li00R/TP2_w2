@@ -22,30 +22,47 @@ class ChampsApiController {
         return json_decode($this->data);
     }
 
-    public function getChamps($params = null) { //se podria agregar variable de limit
+    public function getChamps() {
         $config = new stdClass();
-        if (isset($_GET['sort'])) {
-            $config->sort = $_GET['sortBy'];
+        $sortColumns = $this->model->getColumns();
+        if (isset($_GET['sort']) && in_array($_GET['sort'], $sortColumns)) {
+            $config->sort = $_GET['sort'];
+        } else if (isset($_GET['sort'])) {
+            $config->sort = "a"; //para devolver un error de mal seteado
         } else {
             $config->sort = "ID_champ";
         }
-        if (isset($_GET['order'])) {
+        if (isset($_GET['order']) && ($_GET['order'] == "ASC" || $_GET['order'] == "asc" 
+        || $_GET['order'] == "DESC" ||$_GET['order'] == "desc")) {
             $config->order = $_GET['order'];
+        } else if (isset($_GET['order'])) {
+            $config->order = "a"; //para devolver un error de mal seteado
         } else {
             $config->order = "ASC";
         }
         if (isset($_GET['filter'])) {
             $config->filter = $_GET['filter'];
         } else {
-            $config->filter = "";
+            $config->filter = "all";
+        }
+        if (isset($_GET['limit'])) {
+            $aux = (int) $_GET['limit']; // para comprobar que lo que se ingrega sea unicamente integer
+            $aux = (string) $aux;
+            if ($_GET['limit'] > 0 && $aux == $_GET['limit'] && $_GET['limit'] <= 100) { //para no exigir tantos elementos en un query
+                $config->limit = $_GET['limit'];
+            } else {
+                $config->limit = "a"; //por si pone algo que no sea int, esto es lo mismo, el modelo va a tener error y se devolvera 400
+            }
+        } else {
+            $config->limit = "10"; // por defecto
         }
         if (isset($_GET['page'])) {
             $aux = (int) $_GET['page']; // para comprobar que lo que se ingrega sea unicamente integer
             $aux = (string) $aux;
             if ($_GET['page'] > 0 && $aux == $_GET['page'])  {
-                $config->page = $_GET['page'] * 10 - 10; //para acomodar el paginado con limite de 10
+                $config->page = $_GET['page'] * $config->limit - $config->limit; //para acomodar el paginado con limite de 10
             } else {
-                $config->page = "1.1"; //por si pone algo que no sea int, esto es lo mismo, el modelo va a tener error y se devolvera 400
+                $config->page = "a"; //por si pone algo que no sea int, esto es lo mismo, el modelo va a tener error y se devolvera 400
             }
         } else {
             $config->page = "0";
@@ -131,6 +148,6 @@ class ChampsApiController {
     }
 
     public function badURL() {
-        $this->view->response("Peticion incorrecta", 404);
+        $this->view->response("Peticion incorrecta", 400);
     }
 }
